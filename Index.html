@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تلاوة خاشعة والمصحف الشريف</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(-45deg, #0d1b2a, #1b263b, #0f2027, #203a43);
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --primary-color: #fbbf24;
+            --text-main: #f8fafc;
+            --text-sub: #cbd5e1;
+            --app-font-size: 16px;
+        }
+
+        /* Themes */
+        body.theme-green { --primary-color: #10b981; }
+        body.theme-blue { --primary-color: #3b82f6; }
+        body.theme-red { --primary-color: #ef4444; }
+        body.theme-gold { --primary-color: #fbbf24; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        html { font-size: var(--app-font-size); }
+
+        body {
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: waterfallBG 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 110px;
+        }
+
+        @keyframes waterfallBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Setup Modal */
+        #setup-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 19, 30, 0.96);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .modal-card h2 { color: var(--primary-color); margin-bottom: 15px; }
+
+        .form-group {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        [dir="ltr"] .form-group { text-align: left; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--card-border);
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        header h1 { color: var(--primary-color); font-size: 1.6rem; }
+
+        .search-box {
+            max-width: 500px;
+            margin: 10px auto 0;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--primary-color);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+
+        .search-box i {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--primary-color);
+        }
+
+        [dir="ltr"] .search-box i { right: auto; left: 15px; }
+        [dir="ltr"] .search-box input { padding: 10px 15px 10px 40px; }
+
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--card-border);
+        }
+
+        .prayer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; }
+        .prayer-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid var(--card-border); }
+        .prayer-time { color: var(--primary-color); font-weight: bold; font-size: 1.1rem; margin-top: 4px; }
+
+        /* Mushaf */
+        .surah-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; }
+        .surah-card { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); padding: 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .surah-card:hover { border-color: var(--primary-color); }
+
+        .mushaf-text {
+            background: #fffef7; color: #1a1a1a; padding: 25px; border-radius: 15px; line-height: 2.2; font-family: 'Amiri', serif; font-size: 1.5rem; text-align: justify; border: 5px solid #e2d9c3;
+        }
+
+        /* Azkar Styling */
+        .azkar-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-top: 10px;
+        }
+
+        .azkar-btn {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        .azkar-btn.active {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        .azkar-card {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--card-border);
+            border-right: 4px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        [dir="ltr"] .azkar-card {
+            border-right: 1px solid var(--card-border);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .azkar-counter-btn {
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .color-picker-btns button {
+            width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; margin: 0 5px;
+        }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--card-border); z-index: 1000;
+        }
+
+        .nav-btn { color: var(--text-sub); text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; cursor: pointer; }
+        .nav-btn i { font-size: 1.2rem; margin-bottom: 3px; }
+        .nav-btn.active { color: var(--primary-color); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="theme-gold">
+
+    <!-- SETUP MODAL -->
+    <div id="setup-modal">
+        <div class="modal-card">
+            <h2 id="txt-welcome">مرحباً بك في التطبيق</h2>
+            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 20px;">يرجى تحديد الدولة والمدينة لضبط أوقات الصلاة واللغة بدقة:</p>
+            
+            <div class="form-group">
+                <label>اللغة / Language:</label>
+                <select id="init-lang-select">
+                    <option value="ar">العربية (Arabic)</option>
+                    <option value="en">English (الإنجليزي)</option>
+                    <option value="fr">Français (الفرنسي)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>الدولة / Country:</label>
+                <input type="text" id="init-country" value="Lebanon" placeholder="مثال: Lebanon أو Egypt">
+            </div>
+
+            <div class="form-group">
+                <label>المدينة / City:</label>
+                <input type="text" id="init-city" value="Beirut" placeholder="مثال: Beirut أو Cairo">
+            </div>
+
+            <button class="btn-primary" onclick="saveInitialSetup()">حفظ وتأكيد الدخول <i class="fa-solid fa-check"></i></button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <h1 id="app-title">تلاوة خاشعة والمصحف الشريف 📖</h1>
+        <p id="hijri-date" style="font-size: 0.85rem; color: var(--text-sub);">...</p>
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="youtube-search" placeholder="ابحث عن أنشيد أو مقاطع إسلامية..." onkeypress="handleYTSearch(event)">
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- TAB: PRAYERS -->
+        <div id="tab-prayers" class="tab-content active">
+            <div class="card">
+                <h3><i class="fa-solid fa-mosque" style="color: var(--primary-color);"></i> <span id="txt-prayer-title">أوقات الصلاة اليومية</span></h3>
+                <p style="color: var(--text-sub); font-size: 0.85rem;" id="location-display">...</p>
+                <div class="prayer-grid">
+                    <div class="prayer-item"><div id="lbl-fajr">الفجر</div><div class="prayer-time" id="fajr">--:--</div></div>
+                    <div class="prayer-item"><div id="lbl-sunrise">الشروق</div><div class="prayer-time" id="sunrise">--:--</div></div>
+                    <div class="prayer-item"><div id="lbl-dhuhr">الظهر</div><div class="prayer-time" id="dhuhr">--:--</div></div>
+                    <div class="prayer-item"><div id="lbl-asr">العصر</div><div class="prayer-time" id="asr">--:--</div></div>
+                    <div class="prayer-item"><div id="lbl-maghrib">المغرب</div><div class="prayer-time" id="maghrib">--:--</div></div>
+                    <div class="prayer-item"><div id="lbl-isha">العشاء</div><div class="prayer-time" id="isha">--:--</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: MUSHAF -->
+        <div id="tab-mushaf" class="tab-content">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3><i class="fa-solid fa-book-open" style="color: var(--primary-color);"></i> <span id="txt-mushaf-title">المصحف الشريف</span></h3>
+                    <button id="btn-back-index" style="display:none; background:var(--primary-color); border:none; padding:5px 12px; border-radius:6px; cursor:pointer;" onclick="showSurahGrid()"><i class="fa-solid fa-list"></i> <span id="txt-index">الفهرس</span></button>
+                </div>
+                <input type="text" id="mushaf-search" placeholder="ابحث باسم السورة..." onkeyup="filterSurahs()" style="margin-top:10px;">
+                
+                <div id="surah-grid" class="surah-grid"></div>
+
+                <div id="mushaf-reader" style="display:none; margin-top:15px;">
+                    <h2 id="reader-surah-title" style="text-align:center; color:var(--primary-color); margin-bottom:10px;"></h2>
+                    <div class="mushaf-text" id="mushaf-text-body"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: AUDIO -->
+        <div id="tab-audio" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-headphones" style="color: var(--primary-color);"></i> <span id="txt-audio-title">الاستماع للتلاوات</span></h3>
+                
+                <div class="form-group" style="margin-top:15px;">
+                    <label id="lbl-reciter">اختر القارئ:</label>
+                    <select id="reciter-select" onchange="loadReciterSurahs()"></select>
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-surah">اختر السورة:</label>
+                    <select id="surah-select" onchange="playAudio()"></select>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.3); border:1px solid var(--primary-color); padding:15px; border-radius:12px; text-align:center; margin-top:15px;">
+                    <h4 id="audio-status" style="color:var(--primary-color);">اختر السورة للتشغيل</h4>
+                    <audio id="main-player" controls style="width:100%; margin-top:10px;"></audio>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: AZKAR -->
+        <div id="tab-azkar" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-hands-praying" style="color: var(--primary-color);"></i> <span id="txt-azkar-title">أذكار المسلم</span></h3>
+                
+                <div class="azkar-tabs">
+                    <button class="azkar-btn active" onclick="loadAzkarCategory('sabah', this)">أذكار الصباح</button>
+                    <button class="azkar-btn" onclick="loadAzkarCategory('misa', this)">أذكار المساء</button>
+                    <button class="azkar-btn" onclick="loadAzkarCategory('salah', this)">أذكار بعد الصلاة</button>
+                    <button class="azkar-btn" onclick="loadAzkarCategory('nowm', this)">أذكار النوم</button>
+                </div>
+
+                <div id="azkar-display-area"></div>
+            </div>
+        </div>
+
+        <!-- TAB: SETTINGS -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-sliders" style="color: var(--primary-color);"></i> <span id="txt-settings-title">الإعدادات والتنسيق</span></h3>
+                
+                <div class="form-group" style="margin-top:15px;">
+                    <label id="lbl-set-lang">تغيير اللغة (Language):</label>
+                    <select id="app-lang-select" onchange="changeLanguage(this.value)">
+                        <option value="ar">العربية (Arabic)</option>
+                        <option value="en">English (الإنجليزي)</option>
+                        <option value="fr">Français (الفرنسي)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-volume">مستوى الصوت (Volume):</label>
+                    <input type="range" id="volume-control" min="0" max="1" step="0.1" value="1" oninput="adjustVolume(this.value)" style="width:100%;">
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-theme">لون البرنامج (App Theme):</label>
+                    <div class="color-picker-btns" style="margin-top:5px;">
+                        <button style="background:#fbbf24;" onclick="setTheme('theme-gold')"></button>
+                        <button style="background:#10b981;" onclick="setTheme('theme-green')"></button>
+                        <button style="background:#3b82f6;" onclick="setTheme('theme-blue')"></button>
+                        <button style="background:#ef4444;" onclick="setTheme('theme-red')"></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label id="lbl-font-size">حجم الخط (Font Size):</label>
+                    <select onchange="setFontSize(this.value)">
+                        <option value="14px">صغير (Small)</option>
+                        <option value="16px" selected>متوسط (Medium)</option>
+                        <option value="18px">كبير (Large)</option>
+                    </select>
+                </div>
+
+                <div style="text-align:center; margin-top:20px; border-top:1px solid var(--card-border); padding-top:15px;">
+                    <p>تم تطوير البرمجية بواسطة:</p>
+                    <h3 style="color:#fff;">ربيع رشيد</h3>
+                    <a href="https://instagram.com/RBX.1236" target="_blank" style="color:var(--primary-color); text-decoration:none; font-weight:bold;">Instagram: @RBX.1236</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <div class="nav-btn active" onclick="switchTab('prayers', this)"><i class="fa-solid fa-kaaba"></i><span id="nav-prayers">الصلاة</span></div>
+        <div class="nav-btn" onclick="switchTab('mushaf', this)"><i class="fa-solid fa-book-open"></i><span id="nav-mushaf">المصحف</span></div>
+        <div class="nav-btn" onclick="switchTab('audio', this)"><i class="fa-solid fa-headphones"></i><span id="nav-audio">الاستماع</span></div>
+        <div class="nav-btn" onclick="switchTab('azkar', this)"><i class="fa-solid fa-hands-praying"></i><span id="nav-azkar">الأذكار</span></div>
+        <div class="nav-btn" onclick="switchTab('settings', this)"><i class="fa-solid fa-gear"></i><span id="nav-settings">الإعدادات</span></div>
+    </nav>
+
+    <script>
+        const azkarDatabase = {
+            sabah: [
+                { text: "أَصْبَحْنَا وَأَصْبَحَ المُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ المُلْكُ وَلَهُ الحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.", count: 1 },
+                { text: "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ.", count: 1 },
+                { text: "اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ.", count: 1 },
+                { text: "يا حَيُّ يا قَيُّومُ بِرَحْمَتِكِ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلاَ تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ.", count: 1 },
+                { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ: عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ.", count: 3 }
+            ],
+            misa: [
+                { text: "أَمْسَيْنَا وَأَمْسَى المُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ.", count: 1 },
+                { text: "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ المَصِيرُ.", count: 1 },
+                { text: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ.", count: 3 },
+                { text: "حَسْبِيَ اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ العَرْشِ العَظِيمِ.", count: 7 }
+            ],
+            salah: [
+                { text: "أَسْتَغْفِرُ اللَّهَ (ثَلاَثاً)، اللَّهُمَّ أَنْتَ السَّلاَمُ وَمِنْكُ السَّلاَمُ، تَبَارَكْتَ يَا ذَا الجَلاَلِ وَالإِكْرَامِ.", count: 1 },
+                { text: "سُبْحَانَ اللَّهِ.", count: 33 },
+                { text: "الْحَمْدُ لِلَّهِ.", count: 33 },
+                { text: "اللَّهُ أَكْبَرُ.", count: 33 },
+                { text: "لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ المُلْكُ وَلَهُ الحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.", count: 1 }
+            ],
+            nowm: [
+                { text: "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا.", count: 1 },
+                { text: "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ.", count: 3 },
+                { text: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا.", count: 1 }
+            ]
+        };
+
+        const translations = {
+            ar: {
+                appTitle: "تلاوة خاشعة والمصحف الشريف 📖",
+                searchPlaceholder: "ابحث عن أنشيد أو مقاطع إسلامية...",
+                prayerTitle: "أوقات الصلاة اليومية",
+                mushafTitle: "المصحف الشريف المكتوب",
+                audioTitle: "الاستماع للتلاوات",
+                azkarTitle: "أذكار المسلم الشاملة",
+                settingsTitle: "الإعدادات والتنسيق",
+                fajr: "الفجر", sunrise: "الشروق", dhuhr: "الظهر", asr: "العصر", maghrib: "المغرب", isha: "العشاء",
+                navPrayers: "الصلاة", navMushaf: "المصحف", navAudio: "الاستماع", navAzkar: "الأذكار", navSettings: "الإعدادات",
+                index: "الفهرس", reciter: "اختر القارئ:", surah: "اختر السورة:", volume: "مستوى الصوت:", theme: "لون البرنامج:",
+                fontSize: "حجم الخط:"
+            },
+            en: {
+                appTitle: "Quran & Recitations App 📖",
+                searchPlaceholder: "Search Islamic clips...",
+                prayerTitle: "Daily Prayer Times",
+                mushafTitle: "Holy Quran Text",
+                audioTitle: "Listen to Quran",
+                azkarTitle: "Muslim Azkar",
+                settingsTitle: "Settings",
+                fajr: "Fajr", sunrise: "Sunrise", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", isha: "Isha",
+                navPrayers: "Prayers", navMushaf: "Quran", navAudio: "Audio", navAzkar: "Azkar", navSettings: "Settings",
+                index: "Index", reciter: "Select Reciter:", surah: "Select Surah:", volume: "Volume:", theme: "Theme Color:",
+                fontSize: "Font Size:"
+            },
+            fr: {
+                appTitle: "Coran & Récitations 📖",
+                searchPlaceholder: "Rechercher des vidéos...",
+                prayerTitle: "Heures de Prière",
+                mushafTitle: "Le Saint Coran",
+                audioTitle: "Écouter le Coran",
+                azkarTitle: "Invocations (Azkar)",
+                settingsTitle: "Paramètres",
+                fajr: "Fajr", sunrise: "Lever", dhuhr: "Dhuhr", asr: "Asr", maghrib: "Maghrib", isha: "Isha",
+                navPrayers: "Prière", navMushaf: "Coran", navAudio: "Écouter", navAzkar: "Azkar", navSettings: "Options",
+                index: "Index", reciter: "Choisir le Récitateur:", surah: "Choisir la Sourate:", volume: "Volume:", theme: "Thème:",
+                fontSize: "Taille du texte:"
+            }
+        };
+
+        let currentLang = 'ar';
+        let allSurahs = [];
+
+        function saveInitialSetup() {
+            const country = document.getElementById('init-country').value || 'Lebanon';
+            const city = document.getElementById('init-city').value || 'Beirut';
+            currentLang = document.getElementById('init-lang-select').value;
+            
+            document.getElementById('setup-modal').style.display = 'none';
+            document.getElementById('app-lang-select').value = currentLang;
+            
+            changeLanguage(currentLang);
+            fetchPrayerTimes(city, country);
+            fetchSurahs();
+            fetchReciters();
+            loadAzkarCategory('sabah', document.querySelector('.azkar-btn'));
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            document.getElementById('app-title').innerText = t.appTitle;
+            document.getElementById('youtube-search').placeholder = t.searchPlaceholder;
+            document.getElementById('txt-prayer-title').innerText = t.prayerTitle;
+            document.getElementById('txt-mushaf-title').innerText = t.mushafTitle;
+            document.getElementById('txt-audio-title').innerText = t.audioTitle;
+            document.getElementById('txt-azkar-title').innerText = t.azkarTitle;
+            document.getElementById('txt-settings-title').innerText = t.settingsTitle;
+
+            document.getElementById('lbl-fajr').innerText = t.fajr;
+            document.getElementById('lbl-sunrise').innerText = t.sunrise;
+            document.getElementById('lbl-dhuhr').innerText = t.dhuhr;
+            document.getElementById('lbl-asr').innerText = t.asr;
+            document.getElementById('lbl-maghrib').innerText = t.maghrib;
+            document.getElementById('lbl-isha').innerText = t.isha;
+
+            document.getElementById('nav-prayers').innerText = t.navPrayers;
+            document.getElementById('nav-mushaf').innerText = t.navMushaf;
+            document.getElementById('nav-audio').innerText = t.navAudio;
+            document.getElementById('nav-azkar').innerText = t.navAzkar;
+            document.getElementById('nav-settings').innerText = t.navSettings;
+
+            document.getElementById('txt-index').innerText = t.index;
+            document.getElementById('lbl-reciter').innerText = t.reciter;
+            document.getElementById('lbl-surah').innerText = t.surah;
+            document.getElementById('lbl-volume').innerText = t.volume;
+            document.getElementById('lbl-theme').innerText = t.theme;
+            document.getElementById('lbl-font-size').innerText = t.fontSize;
+        }
+
+        function loadAzkarCategory(catKey, btnElem) {
+            if (btnElem) {
+                document.querySelectorAll('.azkar-btn').forEach(b => b.classList.remove('active'));
+                btnElem.classList.add('active');
+            }
+
+            const area = document.getElementById('azkar-display-area');
+            area.innerHTML = '';
+
+            const list = azkarDatabase[catKey] || [];
+            list.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'azkar-card';
+                card.innerHTML = `
+                    <p>${item.text}</p>
+                    <button class="azkar-counter-btn" id="azkar-btn-${index}" onclick="decrementCounter(${index}, ${item.count})">
+                        التكرار المتبقي: <span id="count-num-${index}">${item.count}</span>
+                    </button>
+                `;
+                area.appendChild(card);
+            });
+        }
+
+        function decrementCounter(idx, initialCount) {
+            const countElem = document.getElementById(`count-num-${idx}`);
+            const btnElem = document.getElementById(`azkar-btn-${idx}`);
+            let val = parseInt(countElem.innerText);
+
+            if (val > 1) {
+                val--;
+                countElem.innerText = val;
+            } else {
+                countElem.innerText = '0';
+                btnElem.style.background = '#10b981';
+                btnElem.style.color = '#fff';
+                btnElem.innerText = 'تم التكرار ✓';
+            }
+        }
+
+        async function fetchPrayerTimes(city, country) {
+            try {
+                const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=5`);
+                const data = await res.json();
+                const t = data.data.timings;
+                
+                document.getElementById('fajr').innerText = t.Fajr;
+                document.getElementById('sunrise').innerText = t.Sunrise;
+                document.getElementById('dhuhr').innerText = t.Dhuhr;
+                document.getElementById('asr').innerText = t.Asr;
+                document.getElementById('maghrib').innerText = t.Maghrib;
+                document.getElementById('isha').innerText = t.Isha;
+                document.getElementById('location-display').innerText = `${city}, ${country}`;
+                document.getElementById('hijri-date').innerText = `${data.data.date.hijri.day} ${data.data.date.hijri.month.ar} ${data.data.date.hijri.year} AH`;
+            } catch(e){}
+        }
+
+        async function fetchSurahs() {
+            try {
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const data = await res.json();
+                allSurahs = data.data;
+                renderSurahGrid(allSurahs);
+            } catch(e){}
+        }
+
+        function renderSurahGrid(surahs) {
+            const container = document.getElementById('surah-grid');
+            container.innerHTML = '';
+            surahs.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'surah-card';
+                div.onclick = () => readSurah(s.number, s.name);
+                div.innerHTML = `<span>${s.number}. ${s.name}</span><i class="fa-solid fa-book-open" style="color:var(--primary-color)"></i>`;
+                container.appendChild(div);
+            });
+        }
+
+        function filterSurahs() {
+            const q = document.getElementById('mushaf-search').value.toLowerCase();
+            const filtered = allSurahs.filter(s => s.name.includes(q) || s.number.toString().includes(q));
+            renderSurahGrid(filtered);
+        }
+
+        async function readSurah(num, name) {
+            document.getElementById('surah-grid').style.display = 'none';
+            document.getElementById('mushaf-search').style.display = 'none';
+            document.getElementById('mushaf-reader').style.display = 'block';
+            document.getElementById('btn-back-index').style.display = 'inline-block';
+            document.getElementById('reader-surah-title').innerText = name;
+
+            const body = document.getElementById('mushaf-text-body');
+            body.innerHTML = 'جاري تحميل السورة...';
+
+            try {
+                const res = await fetch(`https://api.alquran.cloud/v1/surah/${num}/quran-uthmani`);
+                const data = await res.json();
+                let text = '';
+                data.data.ayahs.forEach(a => { text += `${a.text} ﴿${a.numberInSurah}﴾ `; });
+                body.innerHTML = text;
+            } catch(e){ body.innerHTML = 'حدث خطأ في جلب السورة.'; }
+        }
+
+        function showSurahGrid() {
+            document.getElementById('surah-grid').style.display = 'grid';
+            document.getElementById('mushaf-search').style.display = 'block';
+            document.getElementById('mushaf-reader').style.display = 'none';
+            document.getElementById('btn-back-index').style.display = 'none';
+        }
+
+        async function fetchReciters() {
+            try {
+                const res = await fetch('https://mp3quran.net/api/v3/reciters?language=ar');
+                const data = await res.json();
+                const sel = document.getElementById('reciter-select');
+                sel.innerHTML = '<option value="">-- اختر القارئ --</option>';
+                data.reciters.forEach(r => {
+                    if(r.moshaf && r.moshaf.length > 0) {
+                        const opt = document.createElement('option');
+                        opt.value = r.moshaf[0].server;
+                        opt.dataset.surahs = r.moshaf[0].surah_list;
+                        opt.textContent = r.name;
+                        sel.appendChild(opt);
+                    }
+                });
+            } catch(e){}
+        }
+
+        function loadReciterSurahs() {
+            const sel = document.getElementById('reciter-select');
+            const surahSel = document.getElementById('surah-select');
+            const selectedOpt = sel.options[sel.selectedIndex];
+            if (!selectedOpt.value) return;
+
+            const list = selectedOpt.dataset.surahs.split(',');
+            surahSel.innerHTML = '<option value="">-- اختر السورة --</option>';
+            
+            allSurahs.forEach(s => {
+                if(list.includes(s.number.toString())) {
+                    const opt = document.createElement('option');
+                    const numPadded = s.number.toString().padStart(3, '0');
+                    opt.value = `${selectedOpt.value}${numPadded}.mp3`;
+                    opt.textContent = `${s.number}. ${s.name}`;
+                    surahSel.appendChild(opt);
+                }
+            });
+        }
+
+        function playAudio() {
+            const surahSel = document.getElementById('surah-select');
+            const player = document.getElementById('main-player');
+            if(surahSel.value) {
+                player.src = surahSel.value;
+                player.play();
+                document.getElementById('audio-status').innerText = 'جاري التشغيل...';
+            }
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function setTheme(theme) {
+            document.body.className = theme;
+        }
+
+        function adjustVolume(val) {
+            document.getElementById('main-player').volume = val;
+        }
+
+        function setFontSize(size) {
+            document.documentElement.style.setProperty('--app-font-size', size);
+        }
+
+        function handleYTSearch(e) {
+            if(e.key === 'Enter') {
+                const val = document.getElementById('youtube-search').value;
+                if(val) window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(val)}`, '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
